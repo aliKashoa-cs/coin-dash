@@ -1,0 +1,185 @@
+{
+  "version": 2,
+  "example": false,
+  "lab": {
+    "start": "2026-10-29T12:00:00Z",
+    "end": "2026-10-29T13:15:00Z"
+  },
+  "laptops": [
+    {
+      "id": "nehoray-laptop",
+      "student": "Nehoray",
+      "summary": "Lengthened the round to 2 minutes and pushed it to main. Built two features on separate branches: a pause key (P or Escape), and an enemy feature that spawns an extra drone every 15 seconds and, in a second session, gives the drones random powers. Then resolved conflicts and merged both into main; a teammate later merged main with the other branches. No feature was left unmerged.",
+      "observations": [],
+      "notes": "Practice run, not the real lab. The main session started in the home folder and worked on coin-dash through scratchpad clones and the repository itself. The enemy-power session ran in a separate clone (coin-dash-enemy) and was started by the student, not as a subagent. Both sessions ran in auto mode, so no permission prompts were logged; the only waiting time is one question the agent asked. A background-task notification arrived at 13:13:31Z with no reply logged, so it is not counted. This reporting session is left out.",
+      "history": "*   \u001b[33mfc9d385\u001b[m\u001b[33m (\u001b[m\u001b[1;36mHEAD\u001b[m\u001b[33m -> \u001b[m\u001b[1;32mmain\u001b[m\u001b[33m, \u001b[m\u001b[1;31morigin/main\u001b[m\u001b[33m, \u001b[m\u001b[1;31morigin/HEAD\u001b[m\u001b[33m)\u001b[m Merge origin/main: combine drone powers, power-ups, audio, pause with high score and visuals\n\u001b[31m|\u001b[m\u001b[32m\\\u001b[m  \n\u001b[31m|\u001b[m *   \u001b[33m0ba32d1\u001b[m Merge branch 'feature/pause-button'\n\u001b[31m|\u001b[m \u001b[33m|\u001b[m\u001b[34m\\\u001b[m  \n\u001b[31m|\u001b[m \u001b[33m|\u001b[m * \u001b[33md953fc6\u001b[m\u001b[33m (\u001b[m\u001b[1;31morigin/feature/pause-button\u001b[m\u001b[33m)\u001b[m Add pause with P or Escape\n\u001b[31m|\u001b[m * \u001b[34m|\u001b[m   \u001b[33m40f0837\u001b[m Merge branch 'feature/enemy-creation'\n\u001b[31m|\u001b[m \u001b[35m|\u001b[m\u001b[36m\\\u001b[m \u001b[34m\\\u001b[m  \n\u001b[31m|\u001b[m \u001b[35m|\u001b[m * \u001b[34m|\u001b[m \u001b[33mcce7655\u001b[m\u001b[33m (\u001b[m\u001b[1;31morigin/feature/enemy-creation\u001b[m\u001b[33m)\u001b[m Give spawned drones random powers\n\u001b[31m|\u001b[m \u001b[35m|\u001b[m * \u001b[34m|\u001b[m \u001b[33m1145d81\u001b[m Spawn an extra drone every 15 seconds\n\u001b[31m|\u001b[m \u001b[35m|\u001b[m \u001b[34m|\u001b[m\u001b[34m/\u001b[m  \n\u001b[31m|\u001b[m * \u001b[34m|\u001b[m   \u001b[33mc33acbc\u001b[m Merge branch 'feature/audio'\n\u001b[31m|\u001b[m \u001b[1;31m|\u001b[m\u001b[1;32m\\\u001b[m \u001b[34m\\\u001b[m  \n\u001b[31m|\u001b[m \u001b[1;31m|\u001b[m * \u001b[34m|\u001b[m \u001b[33m09c47ba\u001b[m\u001b[33m (\u001b[m\u001b[1;31morigin/feature/audio\u001b[m\u001b[33m)\u001b[m feat: add background audio and death sound\n\u001b[31m|\u001b[m \u001b[1;31m|\u001b[m \u001b[34m|\u001b[m\u001b[34m/\u001b[m  \n\u001b[31m|\u001b[m * \u001b[34m/\u001b[m \u001b[33m2bf8a27\u001b[m\u001b[33m (\u001b[m\u001b[1;31morigin/feature/powerups\u001b[m\u001b[33m)\u001b[m feat: add speed and shrink power-up\n\u001b[31m|\u001b[m \u001b[34m|\u001b[m\u001b[34m/\u001b[m  \n* \u001b[34m|\u001b[m   \u001b[33ma1b8465\u001b[m Merge feature/visual-style\n\u001b[1;33m|\u001b[m\u001b[1;34m\\\u001b[m \u001b[34m\\\u001b[m  \n\u001b[1;33m|\u001b[m * \u001b[34m|\u001b[m \u001b[33me8e3be5\u001b[m\u001b[33m (\u001b[m\u001b[1;31morigin/feature/visual-style\u001b[m\u001b[33m)\u001b[m Add neon visual style\n\u001b[1;33m|\u001b[m \u001b[34m|\u001b[m\u001b[34m/\u001b[m  \n* \u001b[34m|\u001b[m   \u001b[33mcf56e56\u001b[m Merge feature/high-score\n\u001b[34m|\u001b[m\u001b[1;36m\\\u001b[m \u001b[34m\\\u001b[m  \n\u001b[34m|\u001b[m \u001b[1;36m|\u001b[m\u001b[34m/\u001b[m  \n\u001b[34m|\u001b[m\u001b[34m/\u001b[m\u001b[1;36m|\u001b[m   \n\u001b[34m|\u001b[m * \u001b[33m095a533\u001b[m\u001b[33m (\u001b[m\u001b[1;31morigin/feature/high-score\u001b[m\u001b[33m)\u001b[m Add persistent high score\n\u001b[34m|\u001b[m\u001b[34m/\u001b[m  \n* \u001b[33m97962f8\u001b[m Lengthen the round to 2 minutes\n* \u001b[33mdffcb36\u001b[m Change background color to blue\n* \u001b[33m169b843\u001b[m Coin Dash starter, from the course repository at e702c63\n",
+      "sessions": [
+        {
+          "id": "nehoray-main",
+          "label": "Clone, timer, pause & enemy features, merges",
+          "tool": "Claude",
+          "parent": null,
+          "start": "2026-10-29T12:12:45.710Z",
+          "end": "2026-10-29T13:11:11.287Z",
+          "intervals": [
+            {
+              "start": "2026-10-29T12:12:45.710Z",
+              "end": "2026-10-29T12:14:31.452Z",
+              "state": "working"
+            },
+            {
+              "start": "2026-10-29T12:16:45.254Z",
+              "end": "2026-10-29T12:16:59.730Z",
+              "state": "working"
+            },
+            {
+              "start": "2026-10-29T12:17:46.646Z",
+              "end": "2026-10-29T12:18:28.284Z",
+              "state": "working"
+            },
+            {
+              "start": "2026-10-29T12:18:30.860Z",
+              "end": "2026-10-29T12:18:59.340Z",
+              "state": "working"
+            },
+            {
+              "start": "2026-10-29T12:20:00.223Z",
+              "end": "2026-10-29T12:20:34.143Z",
+              "state": "working"
+            },
+            {
+              "start": "2026-10-29T12:21:05.878Z",
+              "end": "2026-10-29T12:21:22.508Z",
+              "state": "working"
+            },
+            {
+              "start": "2026-10-29T12:22:07.304Z",
+              "end": "2026-10-29T12:22:16.728Z",
+              "state": "working"
+            },
+            {
+              "start": "2026-10-29T12:22:33.309Z",
+              "end": "2026-10-29T12:22:45.365Z",
+              "state": "working"
+            },
+            {
+              "start": "2026-10-29T12:25:05.254Z",
+              "end": "2026-10-29T12:25:12.260Z",
+              "state": "working"
+            },
+            {
+              "start": "2026-10-29T12:35:04.061Z",
+              "end": "2026-10-29T12:35:11.801Z",
+              "state": "working"
+            },
+            {
+              "start": "2026-10-29T12:35:13.904Z",
+              "end": "2026-10-29T12:35:20.542Z",
+              "state": "working"
+            },
+            {
+              "start": "2026-10-29T12:36:08.261Z",
+              "end": "2026-10-29T12:36:18.415Z",
+              "state": "working"
+            },
+            {
+              "start": "2026-10-29T12:36:47.491Z",
+              "end": "2026-10-29T12:36:57.570Z",
+              "state": "working"
+            },
+            {
+              "start": "2026-10-29T12:39:12.227Z",
+              "end": "2026-10-29T12:39:34.996Z",
+              "state": "working"
+            },
+            {
+              "start": "2026-10-29T12:44:14.430Z",
+              "end": "2026-10-29T12:44:21.415Z",
+              "state": "working"
+            },
+            {
+              "start": "2026-10-29T12:44:21.415Z",
+              "end": "2026-10-29T12:45:16.934Z",
+              "state": "waiting"
+            },
+            {
+              "start": "2026-10-29T12:45:16.934Z",
+              "end": "2026-10-29T12:47:19.159Z",
+              "state": "working"
+            },
+            {
+              "start": "2026-10-29T12:50:26.300Z",
+              "end": "2026-10-29T12:50:58.838Z",
+              "state": "working"
+            },
+            {
+              "start": "2026-10-29T12:52:29.201Z",
+              "end": "2026-10-29T12:52:58.273Z",
+              "state": "working"
+            },
+            {
+              "start": "2026-10-29T12:53:28.204Z",
+              "end": "2026-10-29T12:56:05.031Z",
+              "state": "working"
+            },
+            {
+              "start": "2026-10-29T12:56:05.096Z",
+              "end": "2026-10-29T12:56:20.761Z",
+              "state": "working"
+            },
+            {
+              "start": "2026-10-29T13:03:29.336Z",
+              "end": "2026-10-29T13:03:57.998Z",
+              "state": "working"
+            },
+            {
+              "start": "2026-10-29T13:07:22.241Z",
+              "end": "2026-10-29T13:07:31.398Z",
+              "state": "working"
+            },
+            {
+              "start": "2026-10-29T13:10:29.291Z",
+              "end": "2026-10-29T13:11:11.287Z",
+              "state": "working"
+            }
+          ]
+        },
+        {
+          "id": "nehoray-enemy-powers",
+          "label": "Enemy power-ups",
+          "tool": "Claude",
+          "parent": null,
+          "start": "2026-10-29T12:47:00.871Z",
+          "end": "2026-10-29T12:49:59.167Z",
+          "intervals": [
+            {
+              "start": "2026-10-29T12:47:00.871Z",
+              "end": "2026-10-29T12:47:44.258Z",
+              "state": "working"
+            },
+            {
+              "start": "2026-10-29T12:47:53.140Z",
+              "end": "2026-10-29T12:48:03.933Z",
+              "state": "working"
+            },
+            {
+              "start": "2026-10-29T12:48:14.516Z",
+              "end": "2026-10-29T12:48:27.449Z",
+              "state": "working"
+            },
+            {
+              "start": "2026-10-29T12:49:01.366Z",
+              "end": "2026-10-29T12:49:16.013Z",
+              "state": "working"
+            },
+            {
+              "start": "2026-10-29T12:49:54.701Z",
+              "end": "2026-10-29T12:49:59.167Z",
+              "state": "working"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
