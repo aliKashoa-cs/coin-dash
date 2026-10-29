@@ -48,6 +48,66 @@ class CoinDash extends Phaser.Scene {
     this.cursors = this.input.keyboard.createCursorKeys();
     this.keys = this.input.keyboard.addKeys('W,A,S,D,R');
     this.input.keyboard.on('keydown-R', () => this.scene.restart());
+    // Browsers only allow audio after a key press; on restart the context already exists.
+    this.musicTimer = null;
+    this.events.once('shutdown', () => this.stopMusic());
+    if (CoinDash.audioCtx) this.startMusic();
+    else this.input.keyboard.once('keydown', () => this.startMusic());
+  }
+
+  getAudio() {
+    if (!CoinDash.audioCtx) {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return null;
+      try { CoinDash.audioCtx = new AudioCtx(); } catch (e) { return null; }
+    }
+    if (CoinDash.audioCtx.state === 'suspended') CoinDash.audioCtx.resume();
+    return CoinDash.audioCtx;
+  }
+
+  tone(ctx, freq, start, length, volume, wave) {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = wave;
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(volume, start);
+    gain.gain.exponentialRampToValueAtTime(0.0001, start + length);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(start);
+    osc.stop(start + length);
+  }
+
+  startMusic() {
+    const a = COIN_DASH.audio;
+    const ctx = this.getAudio();
+    if (!ctx || this.musicTimer) return;
+    const beat = 60 / a.tempo;
+    let step = 0;
+    let next = ctx.currentTime + 0.05;
+    // Look-ahead scheduler: queue the notes due in the next 0.3s every 100ms.
+    const schedule = () => {
+      while (next < ctx.currentTime + 0.3) {
+        this.tone(ctx, a.notes[step % a.notes.length], next, beat * 0.9, a.volume, a.wave);
+        next += beat;
+        step++;
+      }
+    };
+    schedule();
+    this.musicTimer = setInterval(schedule, 100);
+  }
+
+  stopMusic() {
+    clearInterval(this.musicTimer);
+    this.musicTimer = null;
+  }
+
+  playDeath() {
+    const a = COIN_DASH.audio;
+    const ctx = this.getAudio();
+    if (!ctx) return;
+    const t = ctx.currentTime;
+    a.deathNotes.forEach((f, i) =>
+      this.tone(ctx, f, t + i * a.deathNoteSeconds, a.deathNoteSeconds * 1.5, a.deathVolume, 'sawtooth'));
   }
 
   placeCoin() {
@@ -97,6 +157,8 @@ class CoinDash extends Phaser.Scene {
     if (this.finished) return;
     this.finished = true;
     this.physics.pause();
+    this.stopMusic();
+    this.playDeath();
     const c = COIN_DASH;
     this.add.rectangle(c.width / 2, c.height / 2, 460, 150, 0x0a1120, 0.95);
     this.add.text(c.width / 2, c.height / 2,
