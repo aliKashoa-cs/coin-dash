@@ -9,18 +9,22 @@ class CoinDash extends Phaser.Scene {
     this.deadline = this.time.now + c.roundSeconds * 1000;
     this.physics.world.setBounds(0, 44, c.width, c.height - 44);
     this.add.grid(c.width / 2, c.height / 2, c.width, c.height, 40, 40,
-      c.colors.background, 1, 0x24334b, 0.45);
+      c.colors.background, 1, c.colors.grid, 0.5);
     this.hud = this.add.text(18, 12, '', { font: '18px monospace', color: '#ffffff' });
+    Visuals.styleHud(this.hud);
     this.player = this.add.rectangle(c.width / 2, c.height / 2, 24, 24, c.colors.player);
+    Visuals.stylePlayer(this.player);
     this.physics.add.existing(this.player);
     this.player.body.setCollideWorldBounds(true);
     this.coin = this.add.circle(100, 100, 9, c.colors.coin);
+    Visuals.styleCoin(this.coin);
     this.physics.add.existing(this.coin);
     this.coin.body.setCircle(9);
     this.placeCoin();
     this.drones = this.physics.add.group();
     for (let i = 0; i < c.droneCount; i++) {
       const drone = this.add.rectangle(90 + i * 270, 100, 26, 26, c.colors.drone);
+      Visuals.styleDrone(drone);
       this.drones.add(drone);
       drone.body.setCollideWorldBounds(true).setBounce(1, 1);
       const angle = (35 + i * 105) * Math.PI / 180;
@@ -32,6 +36,7 @@ class CoinDash extends Phaser.Scene {
       this.placeCoin();
     });
     this.physics.add.overlap(this.player, this.drones, () => this.finish('A drone caught you!'));
+    Visuals.decorate(this);
     this.cursors = this.input.keyboard.createCursorKeys();
     this.keys = this.input.keyboard.addKeys('W,A,S,D,R');
     this.input.keyboard.on('keydown-R', () => this.scene.restart());
@@ -67,11 +72,12 @@ class CoinDash extends Phaser.Scene {
     this.finished = true;
     this.physics.pause();
     const c = COIN_DASH;
-    this.add.rectangle(c.width / 2, c.height / 2, 460, 150, 0x0a1120, 0.95);
-    this.add.text(c.width / 2, c.height / 2,
+    Visuals.endPanel(this, 460, 150);
+    const txt = this.add.text(c.width / 2, c.height / 2,
       `${reason}\n${this.score} coins collected\nPress R to try again`,
       { font: '24px monospace', color: '#ffffff', align: 'center', lineSpacing: 12 }
-    ).setOrigin(0.5);
+    ).setOrigin(0.5).setDepth(31);
+    Visuals.styleEnd(txt);
   }
 }
 window.coinDashGame = new Phaser.Game({
