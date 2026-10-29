@@ -19,13 +19,8 @@ class CoinDash extends Phaser.Scene {
     this.coin.body.setCircle(9);
     this.placeCoin();
     this.drones = this.physics.add.group();
-    for (let i = 0; i < c.droneCount; i++) {
-      const drone = this.add.rectangle(90 + i * 270, 100, 26, 26, c.colors.drone);
-      this.drones.add(drone);
-      drone.body.setCollideWorldBounds(true).setBounce(1, 1);
-      const angle = (35 + i * 105) * Math.PI / 180;
-      drone.body.setVelocity(Math.cos(angle) * c.droneSpeed, Math.sin(angle) * c.droneSpeed);
-    }
+    for (let i = 0; i < c.droneCount; i++) this.spawnDrone(90 + i * 270, 100, 35 + i * 105);
+    this.nextSpawn = c.droneSpawnSeconds;
     this.physics.add.overlap(this.player, this.coin, () => {
       if (this.finished) return;
       this.score++;
@@ -49,6 +44,26 @@ class CoinDash extends Phaser.Scene {
     this.coin.body.reset(x, y);
   }
 
+  spawnDrone(x, y, degrees) {
+    const c = COIN_DASH;
+    const drone = this.add.rectangle(x, y, 26, 26, c.colors.drone);
+    this.drones.add(drone);
+    drone.body.setCollideWorldBounds(true).setBounce(1, 1);
+    const angle = degrees * Math.PI / 180;
+    drone.body.setVelocity(Math.cos(angle) * c.droneSpeed, Math.sin(angle) * c.droneSpeed);
+  }
+
+  spawnRandomDrone() {
+    const c = COIN_DASH;
+    // Keep new drones well away from the player so a spawn is never an instant loss.
+    let x, y;
+    do {
+      x = Phaser.Math.Between(30, c.width - 30);
+      y = Phaser.Math.Between(75, c.height - 30);
+    } while (Phaser.Math.Distance.Between(x, y, this.player.x, this.player.y) < 150);
+    this.spawnDrone(x, y, Phaser.Math.Between(0, 359));
+  }
+
   update() {
     if (this.finished) return;
     const dx = Number(this.cursors.right.isDown || this.keys.D.isDown)
@@ -59,7 +74,13 @@ class CoinDash extends Phaser.Scene {
     this.player.body.setVelocity(direction.x, direction.y);
     const seconds = Math.max(0, Math.ceil((this.deadline - this.time.now) / 1000));
     this.hud.setText(`Coins: ${this.score}                       Time: ${seconds}s`);
-    if (seconds === 0) this.finish('Time is up!');
+    if (seconds === 0) return this.finish('Time is up!');
+    // Measure round time from the deadline, so anything that moves the deadline also delays spawns.
+    const elapsed = COIN_DASH.roundSeconds - (this.deadline - this.time.now) / 1000;
+    if (elapsed >= this.nextSpawn) {
+      this.spawnRandomDrone();
+      this.nextSpawn += COIN_DASH.droneSpawnSeconds;
+    }
   }
 
   finish(reason) {
