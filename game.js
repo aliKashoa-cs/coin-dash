@@ -26,10 +26,23 @@ class CoinDash extends Phaser.Scene {
       const angle = (35 + i * 105) * Math.PI / 180;
       drone.body.setVelocity(Math.cos(angle) * c.droneSpeed, Math.sin(angle) * c.droneSpeed);
     }
+    // Power-up starts hidden; a timer places it every powerUpInterval seconds.
+    this.powerUpEnd = 0;
+    this.powerUp = this.add.star(0, 0, 5, 7, 15, c.colors.powerUp).setStrokeStyle(2, 0xffffff);
+    this.physics.add.existing(this.powerUp);
+    this.hidePowerUp();
+    this.tweens.add({ targets: this.powerUp, angle: 360, duration: 1500, repeat: -1 });
+    this.time.addEvent({ delay: c.powerUpInterval * 1000, loop: true, callback: () => this.spawnPowerUp() });
     this.physics.add.overlap(this.player, this.coin, () => {
       if (this.finished) return;
       this.score++;
       this.placeCoin();
+    });
+    this.physics.add.overlap(this.player, this.powerUp, () => {
+      if (this.finished || !this.powerUp.active) return;
+      this.hidePowerUp();
+      this.powerUpEnd = this.time.now + c.powerUpSeconds * 1000; // refreshes, never stacks
+      this.player.setScale(c.powerUpShrinkScale); // scaling also resizes the arcade body
     });
     this.physics.add.overlap(this.player, this.drones, () => this.finish('A drone caught you!'));
     this.cursors = this.input.keyboard.createCursorKeys();
@@ -49,13 +62,31 @@ class CoinDash extends Phaser.Scene {
     this.coin.body.reset(x, y);
   }
 
+  spawnPowerUp() {
+    if (this.finished || this.powerUp.active) return;
+    const c = COIN_DASH;
+    const x = Phaser.Math.Between(25, c.width - 25);
+    const y = Phaser.Math.Between(70, c.height - 25);
+    this.powerUp.setPosition(x, y).setActive(true).setVisible(true);
+    this.powerUp.body.reset(x, y);
+    this.powerUp.body.enable = true;
+  }
+
+  hidePowerUp() {
+    this.powerUp.setActive(false).setVisible(false);
+    this.powerUp.body.enable = false;
+  }
+
   update() {
     if (this.finished) return;
+    const c = COIN_DASH;
+    const boosted = this.time.now < this.powerUpEnd;
+    if (!boosted && this.player.scale !== 1) this.player.setScale(1);
     const dx = Number(this.cursors.right.isDown || this.keys.D.isDown)
       - Number(this.cursors.left.isDown || this.keys.A.isDown);
     const dy = Number(this.cursors.down.isDown || this.keys.S.isDown)
       - Number(this.cursors.up.isDown || this.keys.W.isDown);
-    const direction = new Phaser.Math.Vector2(dx, dy).normalize().scale(COIN_DASH.playerSpeed);
+    const direction = new Phaser.Math.Vector2(dx, dy).normalize().scale(c.playerSpeed * (boosted ? c.powerUpSpeedMultiplier : 1));
     this.player.body.setVelocity(direction.x, direction.y);
     const seconds = Math.max(0, Math.ceil((this.deadline - this.time.now) / 1000));
     this.hud.setText(`Coins: ${this.score}                       Time: ${seconds}s`);
