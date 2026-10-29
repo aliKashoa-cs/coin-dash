@@ -19,13 +19,8 @@ class CoinDash extends Phaser.Scene {
     this.coin.body.setCircle(9);
     this.placeCoin();
     this.drones = this.physics.add.group();
-    for (let i = 0; i < c.droneCount; i++) {
-      const drone = this.add.rectangle(90 + i * 270, 100, 26, 26, c.colors.drone);
-      this.drones.add(drone);
-      drone.body.setCollideWorldBounds(true).setBounce(1, 1);
-      const angle = (35 + i * 105) * Math.PI / 180;
-      drone.body.setVelocity(Math.cos(angle) * c.droneSpeed, Math.sin(angle) * c.droneSpeed);
-    }
+    for (let i = 0; i < c.droneCount; i++) this.spawnDrone(90 + i * 270, 100, 35 + i * 105, 'normal');
+    this.nextSpawn = c.droneSpawnSeconds;
     // Power-up starts hidden; a timer places it every powerUpInterval seconds.
     this.powerUpEnd = 0;
     this.powerUp = this.add.star(0, 0, 5, 7, 15, c.colors.powerUp).setStrokeStyle(2, 0xffffff);
@@ -137,6 +132,55 @@ class CoinDash extends Phaser.Scene {
     this.powerUp.body.enable = false;
   }
 
+  spawnDrone(x, y, degrees, power) {
+    const p = COIN_DASH.dronePowers[power];
+    const drone = this.add.rectangle(x, y, p.size, p.size, p.color);
+    drone.power = power;
+    this.drones.add(drone);
+    drone.body.setCollideWorldBounds(true).setBounce(1, 1);
+    const angle = degrees * Math.PI / 180;
+    drone.body.setVelocity(Math.cos(angle) * p.speed, Math.sin(angle) * p.speed);
+    if (power === 'blinker') {
+      this.time.addEvent({ delay: p.blinkSeconds * 1000, loop: true, callback: () => this.blink(drone) });
+    }
+    return drone;
+  }
+
+  // Flash for a moment as a warning, then jump to a random spot away from the player.
+  blink(drone) {
+    if (this.finished) return;
+    this.tweens.add({ targets: drone, alpha: 0.2, duration: 120, yoyo: true, repeat: 2,
+      onComplete: () => {
+        if (this.finished) return;
+        const { x, y } = this.randomSpotAwayFromPlayer(120);
+        drone.body.reset(x, y);
+        const angle = Phaser.Math.Between(0, 359) * Math.PI / 180;
+        const speed = COIN_DASH.dronePowers.blinker.speed;
+        drone.body.setVelocity(Math.cos(angle) * speed, Math.sin(angle) * speed);
+      } });
+  }
+
+  randomSpotAwayFromPlayer(minDistance) {
+    const c = COIN_DASH;
+    let x, y;
+    do {
+      x = Phaser.Math.Between(30, c.width - 30);
+      y = Phaser.Math.Between(75, c.height - 30);
+    } while (Phaser.Math.Distance.Between(x, y, this.player.x, this.player.y) < minDistance);
+    return { x, y };
+  }
+
+  spawnRandomDrone() {
+    // Keep new drones well away from the player so a spawn is never an instant loss.
+    const { x, y } = this.randomSpotAwayFromPlayer(150);
+    const power = Phaser.Utils.Array.GetRandom(Object.keys(COIN_DASH.dronePowers));
+    this.spawnDrone(x, y, Phaser.Math.Between(0, 359), power);
+    const p = COIN_DASH.dronePowers[power];
+    const label = this.add.text(x, y - 24, p.label, { font: 'bold 16px monospace',
+      color: '#' + p.color.toString(16).padStart(6, '0') }).setOrigin(0.5);
+    this.tweens.add({ targets: label, y: y - 60, alpha: 0, duration: 1200, onComplete: () => label.destroy() });
+  }
+
   update() {
     if (this.finished) return;
     const c = COIN_DASH;
@@ -150,7 +194,18 @@ class CoinDash extends Phaser.Scene {
     this.player.body.setVelocity(direction.x, direction.y);
     const seconds = Math.max(0, Math.ceil((this.deadline - this.time.now) / 1000));
     this.hud.setText(`Coins: ${this.score}                       Time: ${seconds}s`);
-    if (seconds === 0) this.finish('Time is up!');
+    if (seconds === 0) return this.finish('Time is up!');
+    // Hunters steer straight at the player, but slower than the player can run.
+    this.drones.getChildren().forEach(drone => {
+      if (drone.power !== 'hunter') return;
+      this.physics.moveToObject(drone, this.player, COIN_DASH.dronePowers.hunter.speed);
+    });
+    // Measure round time from the deadline, so anything that moves the deadline also delays spawns.
+    const elapsed = COIN_DASH.roundSeconds - (this.deadline - this.time.now) / 1000;
+    if (elapsed >= this.nextSpawn) {
+      this.spawnRandomDrone();
+      this.nextSpawn += COIN_DASH.droneSpawnSeconds;
+    }
   }
 
   finish(reason) {
