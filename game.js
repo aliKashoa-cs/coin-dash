@@ -43,6 +43,12 @@ class CoinDash extends Phaser.Scene {
     this.cursors = this.input.keyboard.createCursorKeys();
     this.keys = this.input.keyboard.addKeys('W,A,S,D,R');
     this.input.keyboard.on('keydown-R', () => this.scene.restart());
+    this.paused = false;
+    this.input.keyboard.on('keydown-P', () => this.togglePause());
+    this.input.keyboard.on('keydown-ESC', () => this.togglePause());
+    // The clock and tweens stay paused across a restart unless cleared here.
+    this.time.paused = false;
+    this.tweens.resumeAll();
     // Browsers only allow audio after a key press; on restart the context already exists.
     this.musicTimer = null;
     this.events.once('shutdown', () => this.stopMusic());
@@ -75,7 +81,7 @@ class CoinDash extends Phaser.Scene {
   startMusic() {
     const a = COIN_DASH.audio;
     const ctx = this.getAudio();
-    if (!ctx || this.musicTimer) return;
+    if (!ctx || this.musicTimer || this.paused) return;
     const beat = 60 / a.tempo;
     let step = 0;
     let next = ctx.currentTime + 0.05;
@@ -182,7 +188,7 @@ class CoinDash extends Phaser.Scene {
   }
 
   update() {
-    if (this.finished) return;
+    if (this.finished || this.paused) return;
     const c = COIN_DASH;
     const boosted = this.time.now < this.powerUpEnd;
     if (!boosted && this.player.scale !== 1) this.player.setScale(1);
@@ -220,6 +226,34 @@ class CoinDash extends Phaser.Scene {
       `${reason}\n${this.score} coins collected\nPress R to try again`,
       { font: '24px monospace', color: '#ffffff', align: 'center', lineSpacing: 12 }
     ).setOrigin(0.5);
+  }
+
+  togglePause() {
+    if (this.finished) return;
+    this.paused = !this.paused;
+    if (this.paused) {
+      this.pausedAt = this.time.now;
+      this.physics.pause();
+      this.time.paused = true; // stops power-up and blinker timers
+      this.tweens.pauseAll();
+      this.stopMusic();
+      const c = COIN_DASH;
+      this.pauseText = this.add.text(c.width / 2, c.height / 2,
+        'Paused\nPress P or Esc to resume',
+        { font: '24px monospace', color: '#ffffff', align: 'center', lineSpacing: 12,
+          backgroundColor: '#0a1120', padding: { x: 24, y: 18 } }
+      ).setOrigin(0.5);
+    } else {
+      // time.now keeps running while paused, so push the deadlines back by the paused time.
+      const pausedFor = this.time.now - this.pausedAt;
+      this.deadline += pausedFor;
+      if (this.powerUpEnd > this.pausedAt) this.powerUpEnd += pausedFor;
+      this.physics.resume();
+      this.time.paused = false;
+      this.tweens.resumeAll();
+      this.startMusic();
+      this.pauseText.destroy();
+    }
   }
 }
 window.coinDashGame = new Phaser.Game({
